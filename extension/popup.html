@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CyberGuard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <div class="logo">🛡️</div>
+
+            <div>
+                <h1>CyberGuard</h1>
+                <p>Website Security Analyzer</p>
+            </div>
+        </header>
+
+        <section class="website-card">
+
+            <p class="label">CURRENT WEBSITE</p>
+
+            <p id="website">Detecting website...</p>
+
+        </section>
+
+        <section class="status-card">
+
+            <div class="status-indicator"></div>
+
+            <div>
+                <p class="status-title">Ready to scan</p>
+                <p class="status-description">
+                    Start a security analysis of this website.
+                </p>
+            </div>
+
+        </section>
+
+        <button id="scanButton">
+            Scan Website
+        </button>
+
+        <p id="message"></p>
+
+        <footer>
+            CyberGuard v0.1.0
+        </footer>
+
+    </div>
+
+    <script src="popup.js"></script>
+
+</body>
+
+</html>

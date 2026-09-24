@@ -1,0 +1,121 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    width: 360px;
+    min-height: 420px;
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    color: #1f2937;
+}
+
+.container {
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.logo {
+    font-size: 32px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+header p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.website-card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.label {
+    margin: 0 0 8px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #6b7280;
+    letter-spacing: 1px;
+}
+
+#website {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.status-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #e5e7eb;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #9ca3af;
+}
+
+.status-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-description {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#scanButton {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#scanButton:hover {
+    background: #374151;
+}
+
+#message {
+    text-align: center;
+    font-size: 12px;
+    color: #6b7280;
+    min-height: 18px;
+}
+
+footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 10px;
+    color: #9ca3af;
+}

@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "CyberGuard",
+  "version": "0.1.0",
+  "description": "A browser-based website security and privacy analyzer.",
+  "permissions": [
+    "activeTab"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
