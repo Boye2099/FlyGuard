@@ -5,56 +5,274 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CyberGuard</title>
+    <title>FlyGuard</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="container">
+    <main class="container">
 
-        <header>
-            <div class="logo">🛡️</div>
+        <header class="header">
 
-            <div>
-                <h1>CyberGuard</h1>
-                <p>Website Security Analyzer</p>
+            <div class="brand">
+
+                <div class="brand-mark">
+                    F
+                </div>
+
+                <div>
+                    <h1>FlyGuard</h1>
+                    <p>Web Security Analysis</p>
+                </div>
+
             </div>
+
+            <span class="version">
+                v0.2.0
+            </span>
+
         </header>
 
-        <section class="website-card">
 
-            <p class="label">CURRENT WEBSITE</p>
+        <!-- TARGET -->
 
-            <p id="website">Detecting website...</p>
+        <section class="target-card">
 
-        </section>
+            <div class="section-heading">
+                TARGET
+            </div>
 
-        <section class="status-card">
+            <div class="target">
 
-            <div class="status-indicator"></div>
+                <div class="status-dot"></div>
 
-            <div>
-                <p class="status-title">Ready to scan</p>
-                <p class="status-description">
-                    Start a security analysis of this website.
-                </p>
+                <div class="target-details">
+
+                    <strong id="domain">
+                        Detecting...
+                    </strong>
+
+                    <span id="url">
+                        Loading page information...
+                    </span>
+
+                </div>
+
             </div>
 
         </section>
 
-        <button id="scanButton">
-            Scan Website
+
+        <!-- CONNECTION -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                CONNECTION
+            </div>
+
+            <div class="data-grid">
+
+                <div class="data-item">
+
+                    <span>
+                        Protocol
+                    </span>
+
+                    <strong id="protocol">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        HTTPS
+                    </span>
+
+                    <strong id="httpsStatus">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PAGE ANALYSIS -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                PAGE ANALYSIS
+            </div>
+
+            <div class="data-grid">
+
+                <div class="data-item">
+
+                    <span>
+                        Title
+                    </span>
+
+                    <strong id="pageTitle">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Page Size
+                    </span>
+
+                    <strong id="pageSize">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Links
+                    </span>
+
+                    <strong id="linkCount">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Scripts
+                    </span>
+
+                    <strong id="scriptCount">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Images
+                    </span>
+
+                    <strong id="imageCount">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Forms
+                    </span>
+
+                    <strong id="formCount">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        Iframes
+                    </span>
+
+                    <strong id="iframeCount">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>
+                        External Resources
+                    </span>
+
+                    <strong id="externalCount">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- THIRD PARTY DOMAINS -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                THIRD-PARTY DOMAINS
+            </div>
+
+            <div
+                id="thirdPartyDomains"
+                class="domain-list"
+            >
+
+                <span class="empty">
+                    No analysis performed
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYZE BUTTON -->
+
+        <button
+            id="scanButton"
+            class="scan-button"
+        >
+
+            <span id="buttonText">
+                Analyze Page
+            </span>
+
         </button>
 
-        <p id="message"></p>
+
+        <!-- STATUS MESSAGE -->
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
 
         <footer>
-            CyberGuard v0.1.0
+            Local analysis • FlyGuard
         </footer>
 
-    </div>
+    </main>
+
 
     <script src="popup.js"></script>
 
