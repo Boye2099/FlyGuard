@@ -39,6 +39,11 @@ const thirdPartyDomains =
         "thirdPartyDomains"
     );
 
+const securityFindings =
+    document.getElementById(
+        "securityFindings"
+    );
+
 const scanButton =
     document.getElementById("scanButton");
 
@@ -48,10 +53,6 @@ const buttonText =
 const message =
     document.getElementById("message");
 
-
-/*
- * Convert bytes into a readable size.
- */
 
 function formatBytes(bytes) {
 
@@ -73,10 +74,6 @@ function formatBytes(bytes) {
 }
 
 
-/*
- * Display a status message.
- */
-
 function showMessage(text) {
 
     message.textContent = text;
@@ -85,8 +82,9 @@ function showMessage(text) {
 
 
 /*
- * This function runs inside the webpage
- * being analyzed.
+ * Inspect the active webpage and collect
+ * information that can be used for
+ * basic security checks.
  */
 
 function analyzePage() {
@@ -94,11 +92,6 @@ function analyzePage() {
     const hostname =
         window.location.hostname;
 
-
-    /*
-     * Collect resources loaded by
-     * the webpage.
-     */
 
     const resources = [
 
@@ -120,10 +113,6 @@ function analyzePage() {
 
     ];
 
-
-    /*
-     * Store unique third-party domains.
-     */
 
     const thirdPartyDomains =
         new Set();
@@ -150,12 +139,6 @@ function analyzePage() {
                 );
 
 
-            /*
-             * If the resource belongs
-             * to another hostname,
-             * consider it third-party.
-             */
-
             if (
                 resourceURL.hostname &&
                 resourceURL.hostname !== hostname
@@ -169,19 +152,12 @@ function analyzePage() {
 
         } catch {
 
-            /*
-             * Ignore malformed URLs.
-             */
+            // Ignore invalid resource URLs
 
         }
 
     });
 
-
-    /*
-     * Estimate the size of the
-     * current HTML document.
-     */
 
     const pageSize =
         new Blob([
@@ -191,8 +167,173 @@ function analyzePage() {
 
 
     /*
-     * Return the collected information.
+     * Find forms that contain password
+     * fields.
      */
+
+    const passwordForms = [];
+
+
+    document
+        .querySelectorAll("form")
+        .forEach(form => {
+
+            const passwordField =
+                form.querySelector(
+                    'input[type="password"]'
+                );
+
+
+            if (passwordField) {
+
+                passwordForms.push(
+                    form
+                );
+
+            }
+
+        });
+
+
+    /*
+     * Find forms that submit their
+     * data over HTTP.
+     */
+
+    const insecureForms = [];
+
+
+    document
+        .querySelectorAll("form")
+        .forEach(form => {
+
+            const action =
+                form.getAttribute("action");
+
+
+            if (!action) {
+                return;
+            }
+
+
+            try {
+
+                const formURL =
+                    new URL(
+                        action,
+                        window.location.href
+                    );
+
+
+                if (
+                    window.location.protocol ===
+                        "https:" &&
+                    formURL.protocol ===
+                        "http:"
+                ) {
+
+                    insecureForms.push(
+                        formURL.href
+                    );
+
+                }
+
+            } catch {
+
+                // Ignore invalid form URLs
+
+            }
+
+        });
+
+
+    /*
+     * Look for HTTP resources loaded
+     * by an HTTPS page.
+     */
+
+    const mixedContent = [];
+
+
+    if (
+        window.location.protocol ===
+        "https:"
+    ) {
+
+        resources.forEach(resource => {
+
+            const source =
+                resource.src ||
+                resource.href;
+
+
+            if (!source) {
+                return;
+            }
+
+
+            try {
+
+                const resourceURL =
+                    new URL(
+                        source,
+                        window.location.href
+                    );
+
+
+                if (
+                    resourceURL.protocol ===
+                    "http:"
+                ) {
+
+                    mixedContent.push(
+                        resourceURL.href
+                    );
+
+                }
+
+            } catch {
+
+                // Ignore invalid URLs
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * Count inline JavaScript.
+     */
+
+    const inlineScripts =
+        document.querySelectorAll(
+            "script:not([src])"
+        ).length;
+
+
+    /*
+     * Count external JavaScript.
+     */
+
+    const externalScripts =
+        document.querySelectorAll(
+            "script[src]"
+        ).length;
+
+
+    /*
+     * Check for a Content Security
+     * Policy declared through a
+     * meta tag.
+     */
+
+    const cspMeta =
+        document.querySelector(
+            'meta[http-equiv="Content-Security-Policy"]'
+        );
+
 
     return {
 
@@ -246,7 +387,23 @@ function analyzePage() {
         thirdPartyDomains:
             Array.from(
                 thirdPartyDomains
-            ).sort()
+            ).sort(),
+
+        passwordForms:
+            passwordForms.length,
+
+        insecureForms:
+            insecureForms,
+
+        mixedContent:
+            mixedContent,
+
+        inlineScripts,
+
+        externalScripts,
+
+        hasCsp:
+            Boolean(cspMeta)
 
     };
 
@@ -254,8 +411,7 @@ function analyzePage() {
 
 
 /*
- * Display the analysis results
- * inside the popup.
+ * Display the reconnaissance results.
  */
 
 function displayResults(data) {
@@ -312,22 +468,28 @@ function displayResults(data) {
         data.externalResources;
 
 
-    /*
-     * Clear previous third-party
-     * domain results.
-     */
+    displayThirdPartyDomains(
+        data.thirdPartyDomains
+    );
+
+
+    displaySecurityFindings(
+        data
+    );
+
+}
+
+
+/*
+ * Display third-party domains.
+ */
+
+function displayThirdPartyDomains(domains) {
 
     thirdPartyDomains.innerHTML = "";
 
 
-    /*
-     * If there are no third-party
-     * domains, show a message.
-     */
-
-    if (
-        data.thirdPartyDomains.length === 0
-    ) {
+    if (domains.length === 0) {
 
         const empty =
             document.createElement(
@@ -352,33 +514,295 @@ function displayResults(data) {
     }
 
 
+    domains.forEach(domainName => {
+
+        const item =
+            document.createElement(
+                "div"
+            );
+
+
+        item.className =
+            "domain-item";
+
+
+        item.textContent =
+            domainName;
+
+
+        thirdPartyDomains.appendChild(
+            item
+        );
+
+    });
+
+}
+
+
+/*
+ * Create a security finding element.
+ */
+
+function createFinding(
+    status,
+    title,
+    description,
+    type
+) {
+
+    const finding =
+        document.createElement(
+            "div"
+        );
+
+
+    finding.className =
+        `finding ${type}`;
+
+
+    const statusElement =
+        document.createElement(
+            "span"
+        );
+
+
+    statusElement.className =
+        "finding-status";
+
+
+    statusElement.textContent =
+        status;
+
+
+    const content =
+        document.createElement(
+            "div"
+        );
+
+
+    const titleElement =
+        document.createElement(
+            "strong"
+        );
+
+
+    titleElement.textContent =
+        title;
+
+
+    const descriptionElement =
+        document.createElement(
+            "p"
+        );
+
+
+    descriptionElement.textContent =
+        description;
+
+
+    content.appendChild(
+        titleElement
+    );
+
+
+    content.appendChild(
+        descriptionElement
+    );
+
+
+    finding.appendChild(
+        statusElement
+    );
+
+
+    finding.appendChild(
+        content
+    );
+
+
+    return finding;
+
+}
+
+
+/*
+ * Run the basic security checks.
+ */
+
+function displaySecurityFindings(data) {
+
+    securityFindings.innerHTML = "";
+
+
     /*
-     * Display each third-party domain.
+     * HTTPS check
      */
 
-    data.thirdPartyDomains.forEach(
-        domainName => {
+    if (!data.isHttps) {
 
-            const item =
-                document.createElement(
-                    "div"
-                );
+        securityFindings.appendChild(
+            createFinding(
+                "!",
+                "HTTPS is not enabled",
+                "The current page is using an insecure HTTP connection.",
+                "warning"
+            )
+        );
+
+    } else {
+
+        securityFindings.appendChild(
+            createFinding(
+                "✓",
+                "HTTPS is enabled",
+                "The current page is using HTTPS.",
+                "safe"
+            )
+        );
+
+    }
 
 
-            item.className =
-                "domain-item";
+    /*
+     * Password form check
+     */
 
+    if (data.passwordForms > 0) {
 
-            item.textContent =
-                domainName;
+        if (data.isHttps) {
 
+            securityFindings.appendChild(
+                createFinding(
+                    "i",
+                    "Password form detected",
+                    `${data.passwordForms} form(s) contain a password field. The page is using HTTPS.`,
+                    "info"
+                )
+            );
 
-            thirdPartyDomains.appendChild(
-                item
+        } else {
+
+            securityFindings.appendChild(
+                createFinding(
+                    "!",
+                    "Password form on HTTP page",
+                    `${data.passwordForms} form(s) contain password fields while the page is not using HTTPS.`,
+                    "warning"
+                )
             );
 
         }
-    );
+
+    }
+
+
+    /*
+     * Insecure form submission check
+     */
+
+    if (
+        data.insecureForms.length > 0
+    ) {
+
+        securityFindings.appendChild(
+            createFinding(
+                "!",
+                "Insecure form submission",
+                `${data.insecureForms.length} form(s) submit data to an HTTP address.`,
+                "warning"
+            )
+        );
+
+    }
+
+
+    /*
+     * Mixed content check
+     */
+
+    if (
+        data.mixedContent.length > 0
+    ) {
+
+        securityFindings.appendChild(
+            createFinding(
+                "!",
+                "Mixed content detected",
+                `${data.mixedContent.length} HTTP resource(s) were found on an HTTPS page.`,
+                "warning"
+            )
+        );
+
+    }
+
+
+    /*
+     * Content Security Policy check
+     */
+
+    if (data.hasCsp) {
+
+        securityFindings.appendChild(
+            createFinding(
+                "✓",
+                "CSP meta tag detected",
+                "A Content Security Policy is declared through a meta tag.",
+                "safe"
+            )
+        );
+
+    } else {
+
+        securityFindings.appendChild(
+            createFinding(
+                "i",
+                "No CSP meta tag detected",
+                "FlyGuard did not find a Content Security Policy declared through a meta tag.",
+                "info"
+            )
+        );
+
+    }
+
+
+    /*
+     * Inline script check
+     */
+
+    if (
+        data.inlineScripts > 0
+    ) {
+
+        securityFindings.appendChild(
+            createFinding(
+                "i",
+                "Inline scripts detected",
+                `${data.inlineScripts} inline script(s) were found on the page.`,
+                "info"
+            )
+        );
+
+    }
+
+
+    /*
+     * External script information
+     */
+
+    if (
+        data.externalScripts > 0
+    ) {
+
+        securityFindings.appendChild(
+            createFinding(
+                "i",
+                "External scripts detected",
+                `${data.externalScripts} external JavaScript file(s) were found.`,
+                "info"
+            )
+        );
+
+    }
 
 }
 
@@ -401,10 +825,6 @@ async function analyzeCurrentPage() {
 
 
     try {
-
-        /*
-         * Find the active browser tab.
-         */
 
         const tabs =
             await chrome.tabs.query({
@@ -433,8 +853,8 @@ async function analyzeCurrentPage() {
 
 
         /*
-         * Chrome system pages cannot
-         * be analyzed.
+         * Chrome internal pages cannot
+         * be analyzed using this method.
          */
 
         if (
@@ -454,11 +874,6 @@ async function analyzeCurrentPage() {
         }
 
 
-        /*
-         * Execute analyzePage()
-         * inside the active webpage.
-         */
-
         const results =
             await chrome.scripting
                 .executeScript({
@@ -473,11 +888,6 @@ async function analyzeCurrentPage() {
 
                 });
 
-
-        /*
-         * Make sure Chrome returned
-         * analysis data.
-         */
 
         if (
             !results ||
@@ -496,12 +906,9 @@ async function analyzeCurrentPage() {
             results[0].result;
 
 
-        /*
-         * Put the results into
-         * the popup.
-         */
-
-        displayResults(data);
+        displayResults(
+            data
+        );
 
 
         showMessage(
@@ -535,20 +942,10 @@ async function analyzeCurrentPage() {
 }
 
 
-/*
- * Run analysis when the button
- * is clicked.
- */
-
 scanButton.addEventListener(
     "click",
     analyzeCurrentPage
 );
 
-
-/*
- * Automatically analyze the
- * current page when the popup opens.
- */
 
 analyzeCurrentPage();

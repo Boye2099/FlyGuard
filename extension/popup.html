@@ -14,6 +14,8 @@
 
     <main class="container">
 
+        <!-- Header -->
+
         <header class="header">
 
             <div class="brand">
@@ -22,41 +24,108 @@
                     F
                 </div>
 
-                <div>
+                <div class="brand-text">
                     <h1>FlyGuard</h1>
-                    <p>Web Security Analysis</p>
+                    <span>Web Security Analysis</span>
                 </div>
 
             </div>
 
             <span class="version">
-                v0.2.0
+                0.3.0
             </span>
 
         </header>
 
 
-        <!-- TARGET -->
+        <!-- Target -->
 
-        <section class="target-card">
+        <section class="target">
 
-            <div class="section-heading">
-                TARGET
+            <div class="target-top">
+
+                <span class="label">
+                    TARGET
+                </span>
+
+                <span class="live">
+                    <span class="live-dot"></span>
+                    ACTIVE
+                </span>
+
             </div>
 
-            <div class="target">
 
-                <div class="status-dot"></div>
+            <strong id="domain">
+                Detecting...
+            </strong>
 
-                <div class="target-details">
+            <span id="url" class="target-url">
+                Loading page information...
+            </span>
 
-                    <strong id="domain">
-                        Detecting...
-                    </strong>
+        </section>
 
-                    <span id="url">
-                        Loading page information...
+
+        <!-- Security status -->
+
+        <section class="security-card">
+
+            <div class="security-icon">
+                ✓
+            </div>
+
+            <div class="security-content">
+
+                <span class="label">
+                    SECURITY STATUS
+                </span>
+
+                <strong>
+                    Analysis completed
+                </strong>
+
+                <span>
+                    Review the findings below
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- Findings -->
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <span class="label">
+                    SECURITY FINDINGS
+                </span>
+
+            </div>
+
+            <div
+                id="securityFindings"
+                class="findings"
+            >
+
+                <div class="finding neutral">
+
+                    <span class="finding-status">
+                        -
                     </span>
+
+                    <div>
+                        <strong>
+                            No analysis performed
+                        </strong>
+
+                        <p>
+                            Run an analysis to check security signals.
+                        </p>
+                    </div>
 
                 </div>
 
@@ -65,18 +134,21 @@
         </section>
 
 
-        <!-- CONNECTION -->
+        <!-- Connection -->
 
         <section class="section">
 
-            <div class="section-heading">
-                CONNECTION
+            <div class="section-header">
+
+                <span class="label">
+                    CONNECTION
+                </span>
+
             </div>
 
-            <div class="data-grid">
+            <div class="connection-row">
 
-                <div class="data-item">
-
+                <div>
                     <span>
                         Protocol
                     </span>
@@ -84,12 +156,10 @@
                     <strong id="protocol">
                         -
                     </strong>
-
                 </div>
 
 
-                <div class="data-item">
-
+                <div>
                     <span>
                         HTTPS
                     </span>
@@ -97,7 +167,6 @@
                     <strong id="httpsStatus">
                         -
                     </strong>
-
                 </div>
 
             </div>
@@ -105,117 +174,71 @@
         </section>
 
 
-        <!-- PAGE ANALYSIS -->
+        <!-- Page details -->
 
         <section class="section">
 
-            <div class="section-heading">
-                PAGE ANALYSIS
+            <div class="section-header">
+
+                <span class="label">
+                    PAGE DETAILS
+                </span>
+
             </div>
 
-            <div class="data-grid">
 
-                <div class="data-item">
+            <div class="stats">
 
-                    <span>
-                        Title
-                    </span>
+                <div class="stat">
+                    <span>Links</span>
+                    <strong id="linkCount">-</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Scripts</span>
+                    <strong id="scriptCount">-</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Images</span>
+                    <strong id="imageCount">-</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Forms</span>
+                    <strong id="formCount">-</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Iframes</span>
+                    <strong id="iframeCount">-</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Resources</span>
+                    <strong id="externalCount">-</strong>
+                </div>
+
+            </div>
+
+
+            <div class="page-meta">
+
+                <div>
+                    <span>Title</span>
 
                     <strong id="pageTitle">
                         -
                     </strong>
-
                 </div>
 
 
-                <div class="data-item">
-
-                    <span>
-                        Page Size
-                    </span>
+                <div>
+                    <span>Page size</span>
 
                     <strong id="pageSize">
                         -
                     </strong>
-
-                </div>
-
-
-                <div class="data-item">
-
-                    <span>
-                        Links
-                    </span>
-
-                    <strong id="linkCount">
-                        -
-                    </strong>
-
-                </div>
-
-
-                <div class="data-item">
-
-                    <span>
-                        Scripts
-                    </span>
-
-                    <strong id="scriptCount">
-                        -
-                    </strong>
-
-                </div>
-
-
-                <div class="data-item">
-
-                    <span>
-                        Images
-                    </span>
-
-                    <strong id="imageCount">
-                        -
-                    </strong>
-
-                </div>
-
-
-                <div class="data-item">
-
-                    <span>
-                        Forms
-                    </span>
-
-                    <strong id="formCount">
-                        -
-                    </strong>
-
-                </div>
-
-
-                <div class="data-item">
-
-                    <span>
-                        Iframes
-                    </span>
-
-                    <strong id="iframeCount">
-                        -
-                    </strong>
-
-                </div>
-
-
-                <div class="data-item">
-
-                    <span>
-                        External Resources
-                    </span>
-
-                    <strong id="externalCount">
-                        -
-                    </strong>
-
                 </div>
 
             </div>
@@ -223,12 +246,16 @@
         </section>
 
 
-        <!-- THIRD PARTY DOMAINS -->
+        <!-- Third-party domains -->
 
         <section class="section">
 
-            <div class="section-heading">
-                THIRD-PARTY DOMAINS
+            <div class="section-header">
+
+                <span class="label">
+                    THIRD-PARTY DOMAINS
+                </span>
+
             </div>
 
             <div
@@ -245,7 +272,7 @@
         </section>
 
 
-        <!-- ANALYZE BUTTON -->
+        <!-- Button -->
 
         <button
             id="scanButton"
@@ -259,8 +286,6 @@
         </button>
 
 
-        <!-- STATUS MESSAGE -->
-
         <div
             id="message"
             class="message"
@@ -268,7 +293,7 @@
 
 
         <footer>
-            Local analysis • FlyGuard
+            Local analysis
         </footer>
 
     </main>
