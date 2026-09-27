@@ -1,3 +1,9 @@
+const securityHeaders =
+    document.getElementById("securityHeaders");
+
+const cookieStatus =
+    document.getElementById("cookieStatus");
+
 const domain =
     document.getElementById("domain");
 
@@ -87,7 +93,7 @@ function showMessage(text) {
  * basic security checks.
  */
 
-function analyzePage() {
+async function analyzePage() {
 
     const hostname =
         window.location.hostname;
@@ -335,7 +341,99 @@ function analyzePage() {
         );
 
 
+    /*
+     * Count cookies accessible to
+     * JavaScript.
+     */
+
+    const cookies =
+        document.cookie;
+
+
+    const cookieCount =
+        cookies
+            ? cookies.split(";").length
+            : 0;
+
+
+    /*
+     * Check selected security headers.
+     */
+
+    let headerResults = {
+
+        xFrameOptions:
+            "Not checked",
+
+        contentTypeOptions:
+            "Not checked",
+
+        referrerPolicy:
+            "Not checked",
+
+        permissionsPolicy:
+            "Not checked"
+
+    };
+
+
+    try {
+
+        const response =
+            await fetch(
+                window.location.href,
+                {
+                    method: "GET",
+                    credentials: "same-origin"
+                }
+            );
+
+
+        headerResults = {
+
+            xFrameOptions:
+                response.headers.get(
+                    "X-Frame-Options"
+                ) || "Not detected",
+
+
+            contentTypeOptions:
+                response.headers.get(
+                    "X-Content-Type-Options"
+                ) || "Not detected",
+
+
+            referrerPolicy:
+                response.headers.get(
+                    "Referrer-Policy"
+                ) || "Not detected",
+
+
+            permissionsPolicy:
+                response.headers.get(
+                    "Permissions-Policy"
+                ) || "Not detected"
+
+        };
+
+
+    } catch (error) {
+
+        console.log(
+            "Could not inspect response headers:",
+            error
+        );
+
+    }
+
+
     return {
+
+        headers:
+            headerResults,
+
+        cookieCount:
+            cookieCount,
 
         hostname,
 
@@ -477,6 +575,16 @@ function displayResults(data) {
         data
     );
 
+
+    displaySecurityHeaders(
+        data.headers
+    );
+
+
+    displayCookieStatus(
+        data.cookieCount
+    );
+
 }
 
 
@@ -511,6 +619,7 @@ function displayThirdPartyDomains(domains) {
 
 
         return;
+
     }
 
 
@@ -808,12 +917,128 @@ function displaySecurityFindings(data) {
 
 
 /*
+ * Display security headers.
+ */
+
+function displaySecurityHeaders(headers) {
+
+    securityHeaders.innerHTML = "";
+
+
+    const items = [
+
+        {
+            name:
+                "X-Frame-Options",
+
+            value:
+                headers.xFrameOptions
+        },
+
+        {
+            name:
+                "X-Content-Type-Options",
+
+            value:
+                headers.contentTypeOptions
+        },
+
+        {
+            name:
+                "Referrer-Policy",
+
+            value:
+                headers.referrerPolicy
+        },
+
+        {
+            name:
+                "Permissions-Policy",
+
+            value:
+                headers.permissionsPolicy
+        }
+
+    ];
+
+
+    items.forEach(item => {
+
+        const row =
+            document.createElement(
+                "div"
+            );
+
+
+        row.className =
+            "header-item";
+
+
+        const name =
+            document.createElement(
+                "span"
+            );
+
+
+        name.textContent =
+            item.name;
+
+
+        const value =
+            document.createElement(
+                "strong"
+            );
+
+
+        value.textContent =
+            item.value;
+
+
+        row.appendChild(
+            name
+        );
+
+
+        row.appendChild(
+            value
+        );
+
+
+        securityHeaders.appendChild(
+            row
+        );
+
+    });
+
+}
+
+
+/*
+ * Display cookie information.
+ */
+
+function displayCookieStatus(count) {
+
+    cookieStatus.textContent =
+        count === 0
+            ? "No accessible cookies detected"
+            : `${count} accessible cookie${
+                count === 1
+                    ? ""
+                    : "s"
+            } detected`;
+
+}
+
+
+/*
  * Analyze the currently active tab.
  */
 
 async function analyzeCurrentPage() {
 
     scanButton.disabled = true;
+
 
     buttonText.textContent =
         "Analyzing...";
@@ -933,6 +1158,7 @@ async function analyzeCurrentPage() {
 
         buttonText.textContent =
             "Analyze Again";
+
 
         scanButton.disabled =
             false;

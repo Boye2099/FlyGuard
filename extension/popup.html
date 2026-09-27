@@ -2,109 +2,145 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>FlyGuard</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
-    <main class="container">
+    <div class="container">
 
-        <!-- Header -->
+
+        <!-- =========================
+             HEADER
+             ========================= -->
 
         <header class="header">
 
             <div class="brand">
 
-                <div class="brand-mark">
+                <div class="logo">
                     F
                 </div>
 
                 <div class="brand-text">
-                    <h1>FlyGuard</h1>
-                    <span>Web Security Analysis</span>
+
+                    <h1>
+                        FlyGuard
+                    </h1>
+
+                    <p>
+                        Web Security Analysis
+                    </p>
+
                 </div>
 
             </div>
 
-            <span class="version">
-                0.3.0
-            </span>
+
+            <div class="version">
+                v0.4.0
+            </div>
 
         </header>
 
 
-        <!-- Target -->
 
-        <section class="target">
-
-            <div class="target-top">
-
-                <span class="label">
-                    TARGET
-                </span>
-
-                <span class="live">
-                    <span class="live-dot"></span>
-                    ACTIVE
-                </span>
-
-            </div>
-
-
-            <strong id="domain">
-                Detecting...
-            </strong>
-
-            <span id="url" class="target-url">
-                Loading page information...
-            </span>
-
-        </section>
-
-
-        <!-- Security status -->
-
-        <section class="security-card">
-
-            <div class="security-icon">
-                ✓
-            </div>
-
-            <div class="security-content">
-
-                <span class="label">
-                    SECURITY STATUS
-                </span>
-
-                <strong>
-                    Analysis completed
-                </strong>
-
-                <span>
-                    Review the findings below
-                </span>
-
-            </div>
-
-        </section>
-
-
-        <!-- Findings -->
+        <!-- =========================
+             TARGET
+             ========================= -->
 
         <section class="section">
 
-            <div class="section-header">
+            <div class="section-heading">
+                TARGET
+            </div>
 
-                <span class="label">
-                    SECURITY FINDINGS
+
+            <div class="target">
+
+                <div class="target-main">
+
+                    <div
+                        id="domain"
+                        class="target-domain"
+                    >
+                        Waiting for page...
+                    </div>
+
+
+                    <div
+                        id="url"
+                        class="target-url"
+                    >
+                        No page analyzed
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="httpsStatus"
+                    class="target-status"
+                >
+                    Not checked
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             SECURITY STATUS
+             ========================= -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                SECURITY STATUS
+            </div>
+
+
+            <div class="security-status">
+
+                <span class="status-dot"></span>
+
+                <span id="message">
+                    Ready to analyze
                 </span>
 
             </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             SECURITY FINDINGS
+             ========================= -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                SECURITY FINDINGS
+            </div>
+
 
             <div
                 id="securityFindings"
@@ -117,14 +153,18 @@
                         -
                     </span>
 
+
                     <div>
+
                         <strong>
                             No analysis performed
                         </strong>
 
                         <p>
-                            Run an analysis to check security signals.
+                            Run an analysis to check
+                            security signals.
                         </p>
+
                     </div>
 
                 </div>
@@ -134,39 +174,72 @@
         </section>
 
 
-        <!-- Connection -->
+
+        <!-- =========================
+             SECURITY HEADERS
+             ========================= -->
 
         <section class="section">
 
-            <div class="section-header">
-
-                <span class="label">
-                    CONNECTION
-                </span>
-
+            <div class="section-heading">
+                SECURITY HEADERS
             </div>
 
-            <div class="connection-row">
 
-                <div>
+            <div
+                id="securityHeaders"
+                class="security-headers"
+            >
+
+                <div class="header-item">
+
                     <span>
-                        Protocol
+                        X-Frame-Options
                     </span>
 
-                    <strong id="protocol">
-                        -
+                    <strong>
+                        Not checked
                     </strong>
+
                 </div>
 
 
-                <div>
+                <div class="header-item">
+
                     <span>
-                        HTTPS
+                        X-Content-Type-Options
                     </span>
 
-                    <strong id="httpsStatus">
-                        -
+                    <strong>
+                        Not checked
                     </strong>
+
+                </div>
+
+
+                <div class="header-item">
+
+                    <span>
+                        Referrer-Policy
+                    </span>
+
+                    <strong>
+                        Not checked
+                    </strong>
+
+                </div>
+
+
+                <div class="header-item">
+
+                    <span>
+                        Permissions-Policy
+                    </span>
+
+                    <strong>
+                        Not checked
+                    </strong>
+
                 </div>
 
             </div>
@@ -174,15 +247,102 @@
         </section>
 
 
-        <!-- Page details -->
+
+        <!-- =========================
+             COOKIES
+             ========================= -->
 
         <section class="section">
 
-            <div class="section-header">
+            <div class="section-heading">
+                COOKIES
+            </div>
 
-                <span class="label">
-                    PAGE DETAILS
+
+            <div
+                id="cookieStatus"
+                class="cookie-status"
+            >
+                No cookie analysis performed
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             CONNECTION
+             ========================= -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                CONNECTION
+            </div>
+
+
+            <div class="connection-row">
+
+                <span>
+                    Protocol:
                 </span>
+
+                <strong id="protocol">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="connection-row">
+
+                <span>
+                    Origin:
+                </span>
+
+                <strong id="url">
+                    -
+                </strong>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             PAGE DETAILS
+             ========================= -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                PAGE DETAILS
+            </div>
+
+
+            <div class="connection-row">
+
+                <span>
+                    Title:
+                </span>
+
+                <strong id="pageTitle">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="connection-row">
+
+                <span>
+                    Page size:
+                </span>
+
+                <strong id="pageSize">
+                    -
+                </strong>
 
             </div>
 
@@ -190,55 +350,98 @@
             <div class="stats">
 
                 <div class="stat">
-                    <span>Links</span>
-                    <strong id="linkCount">-</strong>
+
+                    <span class="stat-label">
+                        Links:
+                    </span>
+
+                    <span
+                        id="linkCount"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
+
                 </div>
+
 
                 <div class="stat">
-                    <span>Scripts</span>
-                    <strong id="scriptCount">-</strong>
+
+                    <span class="stat-label">
+                        Scripts:
+                    </span>
+
+                    <span
+                        id="scriptCount"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
+
                 </div>
+
 
                 <div class="stat">
-                    <span>Images</span>
-                    <strong id="imageCount">-</strong>
+
+                    <span class="stat-label">
+                        Images:
+                    </span>
+
+                    <span
+                        id="imageCount"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
+
                 </div>
+
 
                 <div class="stat">
-                    <span>Forms</span>
-                    <strong id="formCount">-</strong>
+
+                    <span class="stat-label">
+                        Forms:
+                    </span>
+
+                    <span
+                        id="formCount"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
+
                 </div>
+
 
                 <div class="stat">
-                    <span>Iframes</span>
-                    <strong id="iframeCount">-</strong>
+
+                    <span class="stat-label">
+                        Iframes:
+                    </span>
+
+                    <span
+                        id="iframeCount"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
+
                 </div>
+
 
                 <div class="stat">
-                    <span>Resources</span>
-                    <strong id="externalCount">-</strong>
-                </div>
 
-            </div>
+                    <span class="stat-label">
+                        Resources:
+                    </span>
 
+                    <span
+                        id="externalCount"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
 
-            <div class="page-meta">
-
-                <div>
-                    <span>Title</span>
-
-                    <strong id="pageTitle">
-                        -
-                    </strong>
-                </div>
-
-
-                <div>
-                    <span>Page size</span>
-
-                    <strong id="pageSize">
-                        -
-                    </strong>
                 </div>
 
             </div>
@@ -246,17 +449,17 @@
         </section>
 
 
-        <!-- Third-party domains -->
+
+        <!-- =========================
+             THIRD-PARTY DOMAINS
+             ========================= -->
 
         <section class="section">
 
-            <div class="section-header">
-
-                <span class="label">
-                    THIRD-PARTY DOMAINS
-                </span>
-
+            <div class="section-heading">
+                THIRD-PARTY DOMAINS
             </div>
+
 
             <div
                 id="thirdPartyDomains"
@@ -272,31 +475,41 @@
         </section>
 
 
-        <!-- Button -->
 
-        <button
-            id="scanButton"
-            class="scan-button"
-        >
+        <!-- =========================
+             ANALYZE BUTTON
+             ========================= -->
 
-            <span id="buttonText">
-                Analyze Page
-            </span>
+        <div class="button-container">
 
-        </button>
+            <button
+                id="scanButton"
+                type="button"
+            >
+
+                <span id="buttonText">
+                    Analyze Page
+                </span>
+
+            </button>
+
+        </div>
 
 
-        <div
-            id="message"
-            class="message"
-        ></div>
+
+        <!-- =========================
+             FOOTER
+             ========================= -->
+
+        <div class="footer">
+
+            FlyGuard analyzes security signals
+            locally in your browser.
+
+        </div>
 
 
-        <footer>
-            Local analysis
-        </footer>
-
-    </main>
+    </div>
 
 
     <script src="popup.js"></script>
