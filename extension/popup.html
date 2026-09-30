@@ -94,19 +94,24 @@
         <!-- SECURITY STATUS -->
 
         <section class="status-section">
+    <div class="section-label">Security score</div>
 
-            <div class="section-label">
-                Current status
-            </div>
-
-            <p
-                id="message"
-                class="status-message"
-            >
+    <div class="score-layout">
+        <div>
+            <p id="message" class="status-message">
                 Ready to analyze
             </p>
+            <p class="score-description">
+                Based on the security signals FlyGuard
+                can currently inspect.
+            </p>
+        </div>
 
-        </section>
+        <strong id="securityScore" class="score-value">
+            —/100
+        </strong>
+    </div>
+</section>
 
 
         <!-- FINDINGS -->
