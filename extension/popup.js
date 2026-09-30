@@ -1,1196 +1,639 @@
-const securityHeaders =
-    document.getElementById("securityHeaders");
+const securityHeaders = document.getElementById("securityHeaders");
+const cookieStatus = document.getElementById("cookieStatus");
 
-const cookieStatus =
-    document.getElementById("cookieStatus");
+const domain = document.getElementById("domain");
+const url = document.getElementById("url");
+const protocol = document.getElementById("protocol");
+const httpsStatus = document.getElementById("httpsStatus");
+const pageTitle = document.getElementById("pageTitle");
+const pageSize = document.getElementById("pageSize");
 
-const domain =
-    document.getElementById("domain");
+const linkCount = document.getElementById("linkCount");
+const scriptCount = document.getElementById("scriptCount");
+const imageCount = document.getElementById("imageCount");
+const formCount = document.getElementById("formCount");
+const iframeCount = document.getElementById("iframeCount");
+const externalCount = document.getElementById("externalCount");
 
-const url =
-    document.getElementById("url");
+const thirdPartyDomains = document.getElementById("thirdPartyDomains");
+const securityFindings = document.getElementById("securityFindings");
 
-const protocol =
-    document.getElementById("protocol");
-
-const httpsStatus =
-    document.getElementById("httpsStatus");
-
-const pageTitle =
-    document.getElementById("pageTitle");
-
-const pageSize =
-    document.getElementById("pageSize");
-
-const linkCount =
-    document.getElementById("linkCount");
-
-const scriptCount =
-    document.getElementById("scriptCount");
-
-const imageCount =
-    document.getElementById("imageCount");
-
-const formCount =
-    document.getElementById("formCount");
-
-const iframeCount =
-    document.getElementById("iframeCount");
-
-const externalCount =
-    document.getElementById("externalCount");
-
-const thirdPartyDomains =
-    document.getElementById("thirdPartyDomains");
-
-const securityFindings =
-    document.getElementById("securityFindings");
-
-const scanButton =
-    document.getElementById("scanButton");
-
-const buttonText =
-    document.getElementById("buttonText");
-
-const message =
-    document.getElementById("message");
+const scanButton = document.getElementById("scanButton");
+const buttonText = document.getElementById("buttonText");
+const message = document.getElementById("message");
 
 
 /*
-    Analyze the current webpage.
-
-    This function runs inside the webpage itself.
-*/
-
+ * Analyze the current webpage.
+ */
 async function analyzePage() {
+    const currentUrl = window.location.href;
+    const currentOrigin = window.location.origin;
+    const currentProtocol = window.location.protocol;
 
-    const currentURL =
-        window.location.href;
+    const links = document.querySelectorAll("a[href]");
+    const scripts = document.querySelectorAll("script");
+    const images = document.querySelectorAll("img[src]");
+    const forms = document.querySelectorAll("form");
+    const iframes = document.querySelectorAll("iframe[src]");
 
-    const currentOrigin =
-        window.location.origin;
+    const resources = document.querySelectorAll(
+        "script[src], img[src], iframe[src], link[href]"
+    );
 
-    const currentProtocol =
-        window.location.protocol;
+    const thirdParty = new Set();
 
+    resources.forEach((resource) => {
+        const source =
+            resource.src ||
+            resource.href;
 
-    /*
-        BASIC PAGE INFORMATION
-    */
-
-    const links =
-        document.querySelectorAll("a");
-
-    const scripts =
-        document.querySelectorAll("script");
-
-    const images =
-        document.querySelectorAll("img");
-
-    const forms =
-        document.querySelectorAll("form");
-
-    const iframes =
-        document.querySelectorAll("iframe");
-
-
-    /*
-        RESOURCE ANALYSIS
-    */
-
-    const resourceElements =
-        document.querySelectorAll(
-            "script[src], img[src], iframe[src], link[href]"
-        );
-
-
-    /*
-        THIRD-PARTY DOMAINS
-    */
-
-    const thirdPartySet =
-        new Set();
-
-
-    resourceElements.forEach(element => {
-
-        const resourceURL =
-            element.src ||
-            element.href;
-
-        if (!resourceURL) {
+        if (!source) {
             return;
         }
 
         try {
+            const resourceUrl = new URL(source);
 
-            const parsedURL =
-                new URL(
-                    resourceURL,
-                    currentURL
-                );
-
-            if (
-                parsedURL.hostname &&
-                parsedURL.hostname !==
-                window.location.hostname
-            ) {
-
-                thirdPartySet.add(
-                    parsedURL.hostname
-                );
-
+            if (resourceUrl.origin !== currentOrigin) {
+                thirdParty.add(resourceUrl.hostname);
             }
-
-        } catch (error) {
-
-            console.log(
-                "Could not parse resource:",
-                error
-            );
-
+        } catch {
+            // Ignore invalid resource URLs.
         }
-
     });
 
+    const pageSizeBytes = new Blob([
+        document.documentElement.outerHTML
+    ]).size;
 
-    /*
-        PAGE SIZE
-    */
+    const isHttps = currentProtocol === "https:";
 
-    const pageHTML =
-        document.documentElement.outerHTML;
+    const passwordFields = document.querySelectorAll(
+        'input[type="password"]'
+    );
 
-    const pageBlob =
-        new Blob([pageHTML]);
-
-    const pageSizeBytes =
-        pageBlob.size;
-
-
-    function formatBytes(bytes) {
-
-        if (bytes === 0) {
-            return "0 Bytes";
-        }
-
-        const units = [
-            "Bytes",
-            "KB",
-            "MB"
-        ];
-
-        const index =
-            Math.floor(
-                Math.log(bytes) /
-                Math.log(1024)
-            );
-
-        return (
-            parseFloat(
-                (
-                    bytes /
-                    Math.pow(
-                        1024,
-                        index
-                    )
-                ).toFixed(2)
-            ) +
-            " " +
-            units[index]
-        );
-
-    }
-
-
-    /*
-        HTTPS CHECK
-    */
-
-    const isHTTPS =
-        currentProtocol === "https:";
-
-
-    /*
-        PASSWORD FORM CHECK
-    */
-
-    const passwordInputs =
-        document.querySelectorAll(
-            'input[type="password"]'
-        );
-
-    const hasPasswordForm =
-        passwordInputs.length > 0;
-
-
-    /*
-        INSECURE FORM CHECK
-    */
-
-    let insecureForms = 0;
-
-    forms.forEach(form => {
-
-        const action =
-            form.getAttribute("action");
+    const insecureForms = Array.from(forms).filter((form) => {
+        const action = form.getAttribute("action");
 
         if (!action) {
-            return;
+            return false;
         }
 
         try {
+            const formUrl = new URL(action, currentUrl);
 
-            const formURL =
-                new URL(
-                    action,
-                    currentURL
-                );
-
-            if (
-                isHTTPS &&
-                formURL.protocol === "http:"
-            ) {
-
-                insecureForms++;
-
-            }
-
-        } catch (error) {
-
-            console.log(
-                "Could not analyze form:",
-                error
+            return (
+                isHttps &&
+                formUrl.protocol === "http:"
             );
-
+        } catch {
+            return false;
         }
-
     });
 
+    const mixedContent = isHttps &&
+        Array.from(resources).some((resource) => {
+            const source =
+                resource.src ||
+                resource.href;
 
-    /*
-        MIXED CONTENT CHECK
-    */
-
-    let mixedContent = 0;
-
-    if (isHTTPS) {
-
-        resourceElements.forEach(element => {
-
-            const resourceURL =
-                element.src ||
-                element.href;
-
-            if (!resourceURL) {
-                return;
+            if (!source) {
+                return false;
             }
 
             try {
-
-                const parsedURL =
-                    new URL(
-                        resourceURL,
-                        currentURL
-                    );
-
-                if (
-                    parsedURL.protocol ===
-                    "http:"
-                ) {
-
-                    mixedContent++;
-
-                }
-
-            } catch (error) {
-
-                console.log(
-                    "Could not analyze mixed content:",
-                    error
-                );
-
+                return new URL(source).protocol === "http:";
+            } catch {
+                return false;
             }
-
         });
 
-    }
+    const inlineScripts = Array.from(scripts).filter(
+        (script) => !script.src && script.textContent.trim()
+    );
 
+    const externalScripts = Array.from(scripts).filter(
+        (script) => script.src
+    );
 
-    /*
-        INLINE SCRIPT CHECK
-    */
+    const csp = document.querySelector(
+        'meta[http-equiv="Content-Security-Policy"]'
+    );
 
-    const inlineScripts =
-        document.querySelectorAll(
-            "script:not([src])"
-        );
+    const cookieCount = document.cookie
+        ? document.cookie.split(";").filter(Boolean).length
+        : 0;
 
-    const hasInlineScripts =
-        inlineScripts.length > 0;
-
-
-    /*
-        EXTERNAL JAVASCRIPT CHECK
-    */
-
-    const externalScripts =
-        document.querySelectorAll(
-            "script[src]"
-        );
-
-    const hasExternalScripts =
-        externalScripts.length > 0;
-
-
-    /*
-        CSP META CHECK
-    */
-
-    const cspMeta =
-        document.querySelector(
-            'meta[http-equiv="Content-Security-Policy"]'
-        );
-
-    const hasCSP =
-        cspMeta !== null;
-
-
-    /*
-        COOKIE CHECK
-
-        document.cookie only exposes cookies
-        accessible to JavaScript.
-
-        HttpOnly cookies are not included.
-    */
-
-    const cookies =
-        document.cookie;
-
-    const cookieCount =
-        cookies
-            ? cookies.split(";").length
-            : 0;
-
-
-    /*
-        SECURITY HEADER CHECK
-
-        This attempts to retrieve the response
-        headers for the current page.
-    */
-
-    let headerResults = {
-
-        xFrameOptions:
-            "Not checked",
-
-        contentTypeOptions:
-            "Not checked",
-
-        referrerPolicy:
-            "Not checked",
-
-        permissionsPolicy:
-            "Not checked"
-
+    const headers = {
+        "X-Frame-Options": "Not detected",
+        "X-Content-Type-Options": "Not detected",
+        "Referrer-Policy": "Not detected",
+        "Permissions-Policy": "Not detected"
     };
-
 
     try {
-
-        const response =
-            await fetch(
-                window.location.href,
-                {
-                    method: "GET",
-                    credentials: "same-origin"
-                }
-            );
-
-
-        headerResults = {
-
-            xFrameOptions:
-                response.headers.get(
-                    "X-Frame-Options"
-                ) ||
-                "Not detected",
-
-
-            contentTypeOptions:
-                response.headers.get(
-                    "X-Content-Type-Options"
-                ) ||
-                "Not detected",
-
-
-            referrerPolicy:
-                response.headers.get(
-                    "Referrer-Policy"
-                ) ||
-                "Not detected",
-
-
-            permissionsPolicy:
-                response.headers.get(
-                    "Permissions-Policy"
-                ) ||
-                "Not detected"
-
-        };
-
-    } catch (error) {
-
-        console.log(
-            "Could not inspect response headers:",
-            error
+        const response = await fetch(
+            window.location.href,
+            {
+                method: "GET",
+                credentials: "same-origin"
+            }
         );
 
+        headers["X-Frame-Options"] =
+            response.headers.get("X-Frame-Options") ||
+            "Not detected";
+
+        headers["X-Content-Type-Options"] =
+            response.headers.get("X-Content-Type-Options") ||
+            "Not detected";
+
+        headers["Referrer-Policy"] =
+            response.headers.get("Referrer-Policy") ||
+            "Not detected";
+
+        headers["Permissions-Policy"] =
+            response.headers.get("Permissions-Policy") ||
+            "Not detected";
+    } catch {
+        // Header inspection may fail because of browser restrictions.
     }
 
-
-    /*
-        RETURN EVERYTHING TO THE EXTENSION
-    */
-
     return {
+        domain: window.location.hostname,
+        url: currentUrl,
+        protocol: currentProtocol,
+        isHttps,
+        title: document.title || "Untitled",
+        pageSize: pageSizeBytes,
 
-        domain:
-            window.location.hostname,
+        links: links.length,
+        scripts: scripts.length,
+        images: images.length,
+        forms: forms.length,
+        iframes: iframes.length,
+        resources: resources.length,
 
-        url:
-            currentURL,
+        thirdPartyDomains: Array.from(thirdParty),
 
-        origin:
-            currentOrigin,
+        passwordFields: passwordFields.length,
+        insecureForms: insecureForms.length,
+        mixedContent,
 
-        protocol:
-            currentProtocol,
+        inlineScripts: inlineScripts.length,
+        externalScripts: externalScripts.length,
 
-        isHTTPS:
-            isHTTPS,
+        hasCsp: Boolean(csp),
 
-        title:
-            document.title,
+        cookieCount,
 
-        pageSize:
-            formatBytes(
-                pageSizeBytes
-            ),
-
-        links:
-            links.length,
-
-        scripts:
-            scripts.length,
-
-        images:
-            images.length,
-
-        forms:
-            forms.length,
-
-        iframes:
-            iframes.length,
-
-        resources:
-            resourceElements.length,
-
-        thirdPartyDomains:
-            Array.from(
-                thirdPartySet
-            ),
-
-        hasPasswordForm:
-            hasPasswordForm,
-
-        insecureForms:
-            insecureForms,
-
-        mixedContent:
-            mixedContent,
-
-        hasInlineScripts:
-            hasInlineScripts,
-
-        hasExternalScripts:
-            hasExternalScripts,
-
-        hasCSP:
-            hasCSP,
-
-        headers:
-            headerResults,
-
-        cookieCount:
-            cookieCount
-
+        headers
     };
-
 }
 
 
 /*
-    Display all analysis results.
-*/
+ * Calculate a security score from the analysis results.
+ *
+ * The score starts at 100 and loses points
+ * when security signals are missing or risky.
+ */
+function calculateSecurityScore(data) {
+    let score = 100;
+    const deductions = [];
 
+    if (!data.isHttps) {
+        score -= 30;
+
+        deductions.push({
+            points: 30,
+            reason: "The page is not using HTTPS."
+        });
+    }
+
+    if (data.insecureForms > 0) {
+        score -= 20;
+
+        deductions.push({
+            points: 20,
+            reason: "A form submits data over HTTP."
+        });
+    }
+
+    if (data.mixedContent) {
+        score -= 15;
+
+        deductions.push({
+            points: 15,
+            reason: "The HTTPS page loads insecure HTTP resources."
+        });
+    }
+
+    if (data.passwordFields > 0 && !data.isHttps) {
+        score -= 20;
+
+        deductions.push({
+            points: 20,
+            reason: "A password field exists on a non-HTTPS page."
+        });
+    }
+
+    if (!data.hasCsp) {
+        score -= 5;
+
+        deductions.push({
+            points: 5,
+            reason: "No Content Security Policy was detected."
+        });
+    }
+
+    if (
+        data.headers["X-Content-Type-Options"] ===
+        "Not detected"
+    ) {
+        score -= 3;
+
+        deductions.push({
+            points: 3,
+            reason: "X-Content-Type-Options was not detected."
+        });
+    }
+
+    if (
+        data.headers["X-Frame-Options"] ===
+        "Not detected"
+    ) {
+        score -= 3;
+
+        deductions.push({
+            points: 3,
+            reason: "X-Frame-Options was not detected."
+        });
+    }
+
+    if (
+        data.headers["Referrer-Policy"] ===
+        "Not detected"
+    ) {
+        score -= 2;
+
+        deductions.push({
+            points: 2,
+            reason: "Referrer-Policy was not detected."
+        });
+    }
+
+    score = Math.max(0, score);
+
+    return {
+        score,
+        deductions
+    };
+}
+
+
+/*
+ * Display the security score.
+ */
+function displaySecurityScore(data) {
+    const existingScore =
+        document.getElementById("securityScore");
+
+    if (!existingScore) {
+        return;
+    }
+
+    const result = calculateSecurityScore(data);
+
+    existingScore.textContent =
+        `${result.score}/100`;
+
+    existingScore.className = "score-value";
+
+    if (result.score >= 80) {
+        existingScore.classList.add("good");
+    } else if (result.score >= 60) {
+        existingScore.classList.add("moderate");
+    } else {
+        existingScore.classList.add("low");
+    }
+}
+
+
+/*
+ * Display third-party domains.
+ */
+function displayThirdPartyDomains(domains) {
+    thirdPartyDomains.innerHTML = "";
+
+    if (domains.length === 0) {
+        thirdPartyDomains.innerHTML =
+            '<span class="empty">None detected</span>';
+
+        return;
+    }
+
+    domains.forEach((hostname) => {
+        const item = document.createElement("span");
+
+        item.className = "domain-item";
+        item.textContent = hostname;
+
+        thirdPartyDomains.appendChild(item);
+    });
+}
+
+
+/*
+ * Display security findings.
+ */
+function displaySecurityFindings(data) {
+    securityFindings.innerHTML = "";
+
+    const findings = [];
+
+    if (data.isHttps) {
+        findings.push({
+            type: "safe",
+            mark: "✓",
+            title: "HTTPS enabled",
+            description: "The page is using an encrypted connection."
+        });
+    } else {
+        findings.push({
+            type: "warning",
+            mark: "!",
+            title: "HTTPS not detected",
+            description: "The page is not using an encrypted connection."
+        });
+    }
+
+    if (data.passwordFields > 0) {
+        findings.push({
+            type: data.isHttps ? "info" : "warning",
+            mark: data.isHttps ? "i" : "!",
+            title: `${data.passwordFields} password field detected`,
+            description: data.isHttps
+                ? "Password input exists on this page."
+                : "A password field exists on a non-HTTPS page."
+        });
+    }
+
+    if (data.insecureForms > 0) {
+        findings.push({
+            type: "warning",
+            mark: "!",
+            title: "Insecure form submission",
+            description: "A form submits data over HTTP."
+        });
+    }
+
+    if (data.mixedContent) {
+        findings.push({
+            type: "warning",
+            mark: "!",
+            title: "Mixed content detected",
+            description: "The page loads resources over HTTP."
+        });
+    }
+
+    if (data.inlineScripts > 0) {
+        findings.push({
+            type: "info",
+            mark: "i",
+            title: "Inline scripts detected",
+            description:
+                `${data.inlineScripts} inline script element(s) found.`
+        });
+    }
+
+    if (data.externalScripts > 0) {
+        findings.push({
+            type: "info",
+            mark: "i",
+            title: "External JavaScript detected",
+            description:
+                `${data.externalScripts} external script(s) found.`
+        });
+    }
+
+    if (data.hasCsp) {
+        findings.push({
+            type: "safe",
+            mark: "✓",
+            title: "Content Security Policy detected",
+            description:
+                "A CSP meta policy was found on the page."
+        });
+    } else {
+        findings.push({
+            type: "info",
+            mark: "i",
+            title: "No CSP meta policy detected",
+            description:
+                "A Content Security Policy meta tag was not found."
+        });
+    }
+
+    if (data.thirdPartyDomains.length > 0) {
+        findings.push({
+            type: "info",
+            mark: "i",
+            title: "Third-party resources detected",
+            description:
+                `${data.thirdPartyDomains.length} third-party domain(s) found.`
+        });
+    }
+
+    findings.forEach((finding) => {
+        const element = document.createElement("div");
+
+        element.className =
+            `finding ${finding.type}`;
+
+        element.innerHTML = `
+            <span class="finding-mark">
+                ${finding.mark}
+            </span>
+
+            <div>
+                <strong>${finding.title}</strong>
+                <p>${finding.description}</p>
+            </div>
+        `;
+
+        securityFindings.appendChild(element);
+    });
+}
+
+
+/*
+ * Display security headers.
+ */
+function displaySecurityHeaders(headers) {
+    securityHeaders.innerHTML = "";
+
+    Object.entries(headers).forEach(
+        ([name, value]) => {
+            const item = document.createElement("div");
+
+            item.className = "header-item";
+
+            item.innerHTML = `
+                <span>${name}</span>
+                <strong>${value}</strong>
+            `;
+
+            securityHeaders.appendChild(item);
+        }
+    );
+}
+
+
+/*
+ * Display cookie information.
+ */
+function displayCookieStatus(count) {
+    if (count === 0) {
+        cookieStatus.textContent =
+            "No accessible cookies detected";
+    } else {
+        cookieStatus.textContent =
+            `${count} accessible cookie(s) detected`;
+    }
+}
+
+
+/*
+ * Display all analysis results.
+ */
 function displayResults(data) {
-
-    domain.textContent =
-        data.domain ||
-        "Unknown";
-
-    url.textContent =
-        data.url ||
-        "Unknown";
+    domain.textContent = data.domain;
+    url.textContent = data.url;
 
     protocol.textContent =
-        data.protocol ||
-        "-";
-
-    pageTitle.textContent =
-        data.title ||
-        "Untitled";
-
-    pageSize.textContent =
-        data.pageSize ||
-        "0 Bytes";
-
-    linkCount.textContent =
-        data.links;
-
-    scriptCount.textContent =
-        data.scripts;
-
-    imageCount.textContent =
-        data.images;
-
-    formCount.textContent =
-        data.forms;
-
-    iframeCount.textContent =
-        data.iframes;
-
-    externalCount.textContent =
-        data.resources;
-
-
-    /*
-        HTTPS STATUS
-    */
+        data.protocol.replace(":", "").toUpperCase();
 
     httpsStatus.textContent =
-        data.isHTTPS
-            ? "HTTPS"
-            : "HTTP";
+        data.isHttps ? "HTTPS" : "HTTP";
 
+    pageTitle.textContent = data.title;
 
-    /*
-        SECURITY STATUS
-    */
+    pageSize.textContent =
+        formatBytes(data.pageSize);
 
-    message.textContent =
-        "Analysis completed";
-
-
-    /*
-        THIRD-PARTY DOMAINS
-    */
+    linkCount.textContent = data.links;
+    scriptCount.textContent = data.scripts;
+    imageCount.textContent = data.images;
+    formCount.textContent = data.forms;
+    iframeCount.textContent = data.iframes;
+    externalCount.textContent = data.resources;
 
     displayThirdPartyDomains(
         data.thirdPartyDomains
     );
 
-
-    /*
-        SECURITY FINDINGS
-    */
-
-    displaySecurityFindings(
-        data
-    );
-
-
-    /*
-        SECURITY HEADERS
-    */
-
-    displaySecurityHeaders(
-        data.headers
-    );
-
-
-    /*
-        COOKIES
-    */
-
-    displayCookieStatus(
-        data.cookieCount
-    );
-
-}
-
-
-/*
-    Display third-party domains.
-*/
-
-function displayThirdPartyDomains(
-    domains
-) {
-
-    thirdPartyDomains.innerHTML = "";
-
-
-    if (
-        !domains ||
-        domains.length === 0
-    ) {
-
-        const empty =
-            document.createElement("span");
-
-        empty.className =
-            "empty";
-
-        empty.textContent =
-            "No third-party domains detected";
-
-        thirdPartyDomains.appendChild(
-            empty
-        );
-
-        return;
-
-    }
-
-
-    domains.forEach(domainName => {
-
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "domain-item";
-
-        item.textContent =
-            domainName;
-
-        thirdPartyDomains.appendChild(
-            item
-        );
-
-    });
-
-}
-
-
-/*
-    Display security findings.
-*/
-
-function displaySecurityFindings(
-    data
-) {
-
-    securityFindings.innerHTML = "";
-
-
-    function addFinding(
-        type,
-        icon,
-        title,
-        description
-    ) {
-
-        const finding =
-            document.createElement("div");
-
-        finding.className =
-            `finding ${type}`;
-
-
-        const status =
-            document.createElement("span");
-
-        status.className =
-            "finding-status";
-
-        status.textContent =
-            icon;
-
-
-        const content =
-            document.createElement("div");
-
-
-        const heading =
-            document.createElement("strong");
-
-        heading.textContent =
-            title;
-
-
-        const text =
-            document.createElement("p");
-
-        text.textContent =
-            description;
-
-
-        content.appendChild(
-            heading
-        );
-
-        content.appendChild(
-            text
-        );
-
-
-        finding.appendChild(
-            status
-        );
-
-        finding.appendChild(
-            content
-        );
-
-
-        securityFindings.appendChild(
-            finding
-        );
-
-    }
-
-
-    /*
-        HTTPS
-    */
-
-    if (data.isHTTPS) {
-
-        addFinding(
-            "safe",
-            "✓",
-            "HTTPS enabled",
-            "The page is using an encrypted HTTPS connection."
-        );
-
-    } else {
-
-        addFinding(
-            "warning",
-            "!",
-            "HTTPS not enabled",
-            "The page is using HTTP instead of HTTPS."
-        );
-
-    }
-
-
-    /*
-        PASSWORD FORMS
-    */
-
-    if (data.hasPasswordForm) {
-
-        addFinding(
-            "info",
-            "i",
-            "Password field detected",
-            "This page contains a password input field."
-        );
-
-    }
-
-
-    /*
-        INSECURE FORMS
-    */
-
-    if (data.insecureForms > 0) {
-
-        addFinding(
-            "warning",
-            "!",
-            "Insecure form submission",
-            `${data.insecureForms} form${
-                data.insecureForms === 1
-                    ? ""
-                    : "s"
-            } submit over HTTP.`
-        );
-
-    }
-
-
-    /*
-        MIXED CONTENT
-    */
-
-    if (data.mixedContent > 0) {
-
-        addFinding(
-            "warning",
-            "!",
-            "Mixed content detected",
-            `${data.mixedContent} resource${
-                data.mixedContent === 1
-                    ? ""
-                    : "s"
-            } load over HTTP.`
-        );
-
-    }
-
-
-    /*
-        INLINE SCRIPTS
-    */
-
-    if (data.hasInlineScripts) {
-
-        addFinding(
-            "info",
-            "i",
-            "Inline scripts detected",
-            "The page contains JavaScript embedded directly in the HTML."
-        );
-
-    }
-
-
-    /*
-        EXTERNAL JAVASCRIPT
-    */
-
-    if (data.hasExternalScripts) {
-
-        addFinding(
-            "info",
-            "i",
-            "External JavaScript detected",
-            "The page loads JavaScript from external script resources."
-        );
-
-    }
-
-
-    /*
-        CSP
-    */
-
-    if (data.hasCSP) {
-
-        addFinding(
-            "safe",
-            "✓",
-            "CSP detected",
-            "A Content Security Policy meta tag was found."
-        );
-
-    } else {
-
-        addFinding(
-            "neutral",
-            "-",
-            "CSP not detected",
-            "No Content Security Policy meta tag was found."
-        );
-
-    }
-
-
-    /*
-        THIRD-PARTY RESOURCES
-    */
-
-    if (
-        data.thirdPartyDomains &&
-        data.thirdPartyDomains.length > 0
-    ) {
-
-        addFinding(
-            "info",
-            "i",
-            "Third-party resources detected",
-            `${data.thirdPartyDomains.length} third-party domain${
-                data.thirdPartyDomains.length === 1
-                    ? ""
-                    : "s"
-            } were found.`
-        );
-
-    }
-
-
-    /*
-        DEFAULT MESSAGE
-    */
-
-    if (
-        securityFindings.children.length === 0
-    ) {
-
-        addFinding(
-            "neutral",
-            "-",
-            "No findings",
-            "No security signals were detected."
-        );
-
-    }
-
-}
-
-
-/*
-    Display security headers.
-*/
-
-function displaySecurityHeaders(
-    headers
-) {
-
-    securityHeaders.innerHTML = "";
-
-
-    const items = [
-
-        {
-            name:
-                "X-Frame-Options",
-
-            value:
-                headers.xFrameOptions
-        },
-
-        {
-            name:
-                "X-Content-Type-Options",
-
-            value:
-                headers.contentTypeOptions
-        },
-
-        {
-            name:
-                "Referrer-Policy",
-
-            value:
-                headers.referrerPolicy
-        },
-
-        {
-            name:
-                "Permissions-Policy",
-
-            value:
-                headers.permissionsPolicy
-        }
-
-    ];
-
-
-    items.forEach(item => {
-
-        const row =
-            document.createElement("div");
-
-        row.className =
-            "header-item";
-
-
-        const name =
-            document.createElement("span");
-
-        name.textContent =
-            item.name;
-
-
-        const value =
-            document.createElement("strong");
-
-        value.textContent =
-            item.value;
-
-
-        row.appendChild(
-            name
-        );
-
-        row.appendChild(
-            value
-        );
-
-
-        securityHeaders.appendChild(
-            row
-        );
-
-    });
-
-}
-
-
-/*
-    Display cookie information.
-*/
-
-function displayCookieStatus(
-    count
-) {
-
-    cookieStatus.textContent =
-        count === 0
-            ? "No accessible cookies detected"
-            : `${count} accessible cookie${
-                count === 1
-                    ? ""
-                    : "s"
-            } detected`;
-
-}
-
-
-/*
-    Analyze the active browser tab.
-*/
-
-async function analyzeCurrentPage() {
-
-    buttonText.textContent =
-        "Analyzing...";
-
-    scanButton.disabled =
-        true;
+    displaySecurityFindings(data);
+    displaySecurityHeaders(data.headers);
+    displayCookieStatus(data.cookieCount);
+
+    displaySecurityScore(data);
 
     message.textContent =
-        "Analyzing current page...";
+        "Analysis completed";
+}
 
+
+/*
+ * Convert bytes into a readable size.
+ */
+function formatBytes(bytes) {
+    if (bytes === 0) {
+        return "0 Bytes";
+    }
+
+    const units = [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+    const index = Math.floor(
+        Math.log(bytes) / Math.log(1024)
+    );
+
+    return `${(
+        bytes / Math.pow(1024, index)
+    ).toFixed(1)} ${units[index]}`;
+}
+
+
+/*
+ * Analyze the currently active browser tab.
+ */
+async function analyzeCurrentPage() {
+    buttonText.textContent = "Analyzing...";
+    scanButton.disabled = true;
+
+    message.textContent =
+        "Inspecting page security signals...";
 
     try {
+        const tabs = await chrome.tabs.query({
+            active: true,
+            currentWindow: true
+        });
 
-        const tabs =
-            await chrome.tabs.query({
-                active: true,
-                currentWindow: true
-            });
+        const activeTab = tabs[0];
 
-
-        const activeTab =
-            tabs[0];
-
-
-        if (!activeTab) {
-
+        if (!activeTab || !activeTab.id) {
             throw new Error(
                 "No active tab found."
             );
-
         }
 
-
-        /*
-            Chrome internal pages cannot
-            be analyzed by the extension.
-        */
-
         if (
-            activeTab.url &&
-            (
-                activeTab.url.startsWith(
-                    "chrome://"
-                ) ||
-                activeTab.url.startsWith(
-                    "chrome-extension://"
-                )
-            )
+            activeTab.url.startsWith("chrome://") ||
+            activeTab.url.startsWith("chrome-extension://")
         ) {
-
             throw new Error(
                 "This page cannot be analyzed."
             );
-
         }
-
 
         const results =
             await chrome.scripting.executeScript({
-
                 target: {
-                    tabId:
-                        activeTab.id
+                    tabId: activeTab.id
                 },
-
-                func:
-                    analyzePage
-
+                func: analyzePage
             });
 
+        const data = results[0].result;
 
-        if (
-            !results ||
-            !results[0] ||
-            !results[0].result
-        ) {
-
-            throw new Error(
-                "No analysis result returned."
-            );
-
-        }
-
-
-        const data =
-            results[0].result;
-
-
-        displayResults(
-            data
-        );
-
+        displayResults(data);
 
     } catch (error) {
-
-        console.error(
-            "FlyGuard analysis error:",
-            error
-        );
-
+        console.error(error);
 
         message.textContent =
             error.message ||
-            "Could not analyze this page.";
+            "Analysis failed.";
 
     } finally {
-
         buttonText.textContent =
-            "Analyze Page";
+            "Analyze page";
 
-        scanButton.disabled =
-            false;
-
+        scanButton.disabled = false;
     }
-
 }
 
-
-/*
-    Analyze when the button is clicked.
-*/
 
 scanButton.addEventListener(
     "click",
     analyzeCurrentPage
 );
-
-
-/*
-    Automatically analyze the page
-    when the popup opens.
-*/
 
 analyzeCurrentPage();
