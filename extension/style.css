@@ -525,3 +525,37 @@ footer {
 
     color: #a0998e;
 }
+.score-layout {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.score-value {
+    font-family: Georgia, serif;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.score-value.good {
+    color: #527a5a;
+}
+
+.score-value.moderate {
+    color: #9a5b3d;
+}
+
+.score-value.low {
+    color: #8a3f35;
+}
+
+.score-description {
+    max-width: 220px;
+    margin: 7px 0 0;
+    color: #777168;
+    font-size: 11px;
+    line-height: 1.5;
+}
