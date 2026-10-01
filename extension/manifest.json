@@ -5,7 +5,8 @@
   "description": "A browser extension for analyzing webpage security and privacy signals.",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "action": {
     "default_popup": "popup.html"
