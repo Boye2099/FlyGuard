@@ -1,0 +1,51 @@
+
+### `.gitignore`
+
+For the current project, keep it simple:
+
+```gitignore
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE / editor files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node / JavaScript tooling
+node_modules/
+
+# Python tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.*
+
+# Build / distribution files
+dist/
+build/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Local development files
+*.local
+
+# Archives
+*.zip
+*.tar
+*.gz
