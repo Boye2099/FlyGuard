@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -16,43 +15,36 @@
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
 
 <body>
 
     <main class="container">
 
-        <!-- HEADER -->
-
+        <!-- Header -->
         <header class="header">
 
             <div>
-
                 <p class="eyebrow">
                     WEB SECURITY TOOL
                 </p>
 
-                <h1>
-                    FlyGuard
-                </h1>
+                <h1>FlyGuard</h1>
 
                 <p class="subtitle">
                     A quick look at the security signals
                     behind the page you're viewing.
                 </p>
-
             </div>
 
             <span class="version">
-                0.4.0
+                0.5.0
             </span>
 
         </header>
 
 
-        <!-- TARGET -->
-
+        <!-- Target -->
         <section class="target-section">
 
             <div class="section-label">
@@ -91,31 +83,44 @@
         </section>
 
 
-        <!-- SECURITY STATUS -->
-
+        <!-- Security Score -->
         <section class="status-section">
-    <div class="section-label">Security score</div>
 
-    <div class="score-layout">
-        <div>
-            <p id="message" class="status-message">
-                Ready to analyze
-            </p>
-            <p class="score-description">
-                Based on the security signals FlyGuard
-                can currently inspect.
-            </p>
-        </div>
+            <div class="section-label">
+                Security score
+            </div>
 
-        <strong id="securityScore" class="score-value">
-            —/100
-        </strong>
-    </div>
-</section>
+            <div class="score-layout">
+
+                <div>
+
+                    <p
+                        id="message"
+                        class="status-message"
+                    >
+                        Ready to analyze
+                    </p>
+
+                    <p class="score-description">
+                        Based on the security signals
+                        FlyGuard can currently inspect.
+                    </p>
+
+                </div>
+
+                <strong
+                    id="securityScore"
+                    class="score-value"
+                >
+                    —/100
+                </strong>
+
+            </div>
+
+        </section>
 
 
-        <!-- FINDINGS -->
-
+        <!-- Findings -->
         <section class="section">
 
             <div class="section-label">
@@ -153,8 +158,7 @@
         </section>
 
 
-        <!-- SECURITY HEADERS -->
-
+        <!-- Response Headers -->
         <section class="section">
 
             <div class="section-label">
@@ -167,51 +171,23 @@
             >
 
                 <div class="header-item">
-
-                    <span>
-                        X-Frame-Options
-                    </span>
-
-                    <strong>
-                        Not checked
-                    </strong>
-
+                    <span>X-Frame-Options</span>
+                    <strong>Not checked</strong>
                 </div>
 
                 <div class="header-item">
-
-                    <span>
-                        X-Content-Type-Options
-                    </span>
-
-                    <strong>
-                        Not checked
-                    </strong>
-
+                    <span>X-Content-Type-Options</span>
+                    <strong>Not checked</strong>
                 </div>
 
                 <div class="header-item">
-
-                    <span>
-                        Referrer-Policy
-                    </span>
-
-                    <strong>
-                        Not checked
-                    </strong>
-
+                    <span>Referrer-Policy</span>
+                    <strong>Not checked</strong>
                 </div>
 
                 <div class="header-item">
-
-                    <span>
-                        Permissions-Policy
-                    </span>
-
-                    <strong>
-                        Not checked
-                    </strong>
-
+                    <span>Permissions-Policy</span>
+                    <strong>Not checked</strong>
                 </div>
 
             </div>
@@ -219,8 +195,7 @@
         </section>
 
 
-        <!-- PAGE INFORMATION -->
-
+        <!-- Page Information -->
         <section class="information-section">
 
             <div class="section-label">
@@ -232,39 +207,18 @@
                 <div class="page-meta">
 
                     <div class="meta-row">
-
-                        <span>
-                            Protocol
-                        </span>
-
-                        <strong id="protocol">
-                            —
-                        </strong>
-
+                        <span>Protocol</span>
+                        <strong id="protocol">—</strong>
                     </div>
 
                     <div class="meta-row">
-
-                        <span>
-                            Title
-                        </span>
-
-                        <strong id="pageTitle">
-                            —
-                        </strong>
-
+                        <span>Title</span>
+                        <strong id="pageTitle">—</strong>
                     </div>
 
                     <div class="meta-row">
-
-                        <span>
-                            Page size
-                        </span>
-
-                        <strong id="pageSize">
-                            —
-                        </strong>
-
+                        <span>Page size</span>
+                        <strong id="pageSize">—</strong>
                     </div>
 
                 </div>
@@ -309,8 +263,7 @@
         </section>
 
 
-        <!-- THIRD PARTY -->
-
+        <!-- Third Party Domains -->
         <section class="third-party-section">
 
             <div class="section-label">
@@ -321,18 +274,15 @@
                 id="thirdPartyDomains"
                 class="domain-list"
             >
-
                 <span class="empty">
                     No analysis performed
                 </span>
-
             </div>
 
         </section>
 
 
-        <!-- COOKIES -->
-
+        <!-- Cookies -->
         <section class="cookie-section">
 
             <div class="section-label">
@@ -349,8 +299,28 @@
         </section>
 
 
-        <!-- ACTION -->
+        <!-- Scan History -->
+        <section class="history-section">
 
+            <div class="section-label">
+                Recent scans
+            </div>
+
+            <div
+                id="scanHistory"
+                class="scan-history"
+            >
+
+                <span class="empty">
+                    No previous scans
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- Action -->
         <div class="action">
 
             <button
@@ -365,6 +335,7 @@
         </div>
 
 
+        <!-- Footer -->
         <footer>
             FlyGuard · Browser-based security analysis
         </footer>
