@@ -1,56 +1,111 @@
 # FlyGuard
 
-FlyGuard is a Chrome extension I'm building to inspect the security and privacy signals of webpages.
+FlyGuard is a web security tool I'm building as a Chrome extension.
 
-The idea is simple: instead of manually checking different parts of a website, FlyGuard brings useful security information into one place and gives a quick overview of what it finds.
+It analyzes the page you're currently on and gives you a quick look at things like HTTPS, security headers, forms, scripts, cookies, third-party resources, and other security signals.
 
-## What it currently checks
+I'm also building a FastAPI backend for it, so the project is gradually moving from a browser extension into a proper security analysis system.
 
-FlyGuard currently analyzes:
+## What it does
 
-- HTTPS usage
-- Password fields
-- Insecure form submissions
-- Mixed content
-- Inline JavaScript
-- External JavaScript
-- Content Security Policy
-- Security response headers
-- Third-party domains and resources
-- Accessible browser cookies
-- Basic page and resource information
+* Checks HTTPS
+* Detects password fields
+* Finds insecure form submissions
+* Checks for mixed content
+* Looks for inline and external scripts
+* Checks for CSP and security headers
+* Finds third-party domains
+* Checks accessible cookies
+* Collects basic page information
+* Calculates a security score
+* Keeps recent scan history locally
 
-It also calculates a security score based on the signals it can currently inspect.
+## Stack
 
-## Scan History
+**Extension**
 
-FlyGuard stores the five most recent scans locally using Chrome's Storage API.
+* JavaScript
+* HTML
+* CSS
+* Chrome Extension APIs
 
-Each saved scan contains:
+**Backend**
 
-- Domain
-- Security score
-- Scan timestamp
+* Python
+* FastAPI
+* Pydantic
+* Uvicorn
 
-The history remains available when the extension popup is closed and reopened.
-
-## How it works
-
-FlyGuard runs as a Chrome Extension and uses Chrome Extension APIs to inspect the active webpage.
-
-The current architecture is:
+## Project structure
 
 ```text
-Chrome Extension
+FlyGuard/
+├── extension/
+│   ├── manifest.json
+│   ├── popup.html
+│   ├── popup.js
+│   └── style.css
 │
-├── popup.html
-├── style.css
-└── popup.js
-       │
-       ├── Webpage analysis
-       ├── Security checks
-       ├── Security scoring
-       └── Local scan history
-              │
-              ▼
-       chrome.storage.local
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── schemas.py
+│   │   └── __init__.py
+│   └── requirements.txt
+│
+├── .gitignore
+└── README.md
+```
+
+## Backend
+
+The API is currently running locally with FastAPI.
+
+Start it with:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app
+```
+
+API:
+
+```text
+http://127.0.0.1:8000
+```
+
+Docs:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Current endpoints:
+
+```text
+GET  /
+GET  /health
+POST /api/scans
+```
+
+The extension and API aren't connected yet. That's the next part I'm working on.
+
+## What's next
+
+* Connect the extension to the API
+* Add database storage
+* Improve the security checks
+* Add authentication
+* Build a dashboard
+* Add automated threat detection
+* Dockerize the backend
+* Add tests
+
+## Why FlyGuard?
+
+I'm building FlyGuard to get more hands-on with web security, backend development, APIs, and the systems that connect them.
+
+It's still a work in progress, but each version is adding another part of the system.
+
+## Disclaimer
+
+FlyGuard is an educational security project and is not a replacement for a full security assessment or penetration test.
