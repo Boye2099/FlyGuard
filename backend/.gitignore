@@ -1,0 +1,63 @@
+# =========================
+# Operating system
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# JavaScript / Node
+# =========================
+node_modules/
+
+# =========================
+# Build / distribution
+# =========================
+dist/
+build/
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.temp
+
+# =========================
+# Archives
+# =========================
+*.zip
+*.tar
+*.gz
