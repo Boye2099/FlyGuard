@@ -702,6 +702,123 @@ async function saveScan(data) {
 
 
 /*
+ * Send completed scan to the FastAPI backend.
+ */
+async function sendScanToBackend(data) {
+
+    try {
+
+        const response =
+            await fetch(
+                "http://127.0.0.1:8000/api/scans",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        domain:
+                            data.domain,
+
+                        url:
+                            data.url,
+
+                        protocol:
+                            data.protocol,
+
+                        is_https:
+                            data.isHttps,
+
+                        links:
+                            data.links,
+
+                        scripts:
+                            data.scripts,
+
+                        images:
+                            data.images,
+
+                        forms:
+                            data.forms,
+
+                        iframes:
+                            data.iframes,
+
+                        resources:
+                            data.resources,
+
+                        third_party_domains:
+                            data.thirdPartyDomains,
+
+                        password_fields:
+                            data.passwordFields,
+
+                        insecure_forms:
+                            data.insecureForms,
+
+                        mixed_content:
+                            data.mixedContent,
+
+                        inline_scripts:
+                            data.inlineScripts,
+
+                        external_scripts:
+                            data.externalScripts,
+
+                        has_csp:
+                            data.hasCsp,
+
+                        cookie_count:
+                            data.cookieCount,
+
+                        headers:
+                            data.headers
+
+                    })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Backend returned HTTP ${response.status}`
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "FlyGuard backend response:",
+            result
+        );
+
+
+    } catch (error) {
+
+        /*
+         * Backend failure should not break
+         * the browser analysis or local history.
+         */
+        console.error(
+            "FlyGuard backend error:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
  * Load scan history.
  */
 async function loadScanHistory() {
@@ -1401,9 +1518,20 @@ async function analyzeCurrentPage() {
 
 
         /*
-         * Save only after a successful analysis.
+         * Save locally first.
          */
         await saveScan(
+            data
+        );
+
+
+        /*
+         * Send the same scan to the backend.
+         *
+         * Backend failure does not affect
+         * the local scan.
+         */
+        await sendScanToBackend(
             data
         );
 
