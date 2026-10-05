@@ -1,14 +1,17 @@
 {
-  "manifest_version": 3,
-  "name": "FlyGuard",
-  "version": "0.5.0",
-  "description": "A browser extension for analyzing webpage security and privacy signals.",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage"
-  ],
-  "action": {
-    "default_popup": "popup.html"
-  }
+    "manifest_version": 3,
+    "name": "FlyGuard",
+    "version": "0.5.1",
+    "description": "A browser extension for analyzing webpage security and privacy signals.",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage"
+    ],
+    "host_permissions": [
+        "http://127.0.0.1:8000/*"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    }
 }
