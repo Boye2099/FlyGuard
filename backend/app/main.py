@@ -1,13 +1,16 @@
+import json
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .database import create_tables, get_connection
 from .schemas import ScanRequest
 
 
 app = FastAPI(
     title="FlyGuard API",
     description="Backend API for FlyGuard web security analysis.",
-    version="0.2.0"
+    version="0.3.0"
 )
 
 
@@ -20,11 +23,14 @@ app.add_middleware(
 )
 
 
+create_tables()
+
+
 @app.get("/")
 def root():
     return {
         "name": "FlyGuard API",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "status": "running"
     }
 
@@ -38,8 +44,167 @@ def health_check():
 
 @app.post("/api/scans")
 def create_scan(scan: ScanRequest):
+
+    connection = get_connection()
+
+    cursor = connection.execute(
+        """
+        INSERT INTO scans (
+            domain,
+            url,
+            protocol,
+            is_https,
+
+            links,
+            scripts,
+            images,
+            forms,
+            iframes,
+            resources,
+
+            third_party_domains,
+
+            password_fields,
+            insecure_forms,
+            mixed_content,
+
+            inline_scripts,
+            external_scripts,
+
+            has_csp,
+            cookie_count,
+
+            headers
+        )
+        VALUES (
+            ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?,
+            ?,
+            ?, ?, ?,
+            ?, ?,
+            ?, ?,
+            ?
+        )
+        """,
+        (
+            scan.domain,
+            scan.url,
+            scan.protocol,
+            int(scan.is_https),
+
+            scan.links,
+            scan.scripts,
+            scan.images,
+            scan.forms,
+            scan.iframes,
+            scan.resources,
+
+            json.dumps(
+                scan.third_party_domains
+            ),
+
+            scan.password_fields,
+            scan.insecure_forms,
+            int(scan.mixed_content),
+
+            scan.inline_scripts,
+            scan.external_scripts,
+
+            int(scan.has_csp),
+            scan.cookie_count,
+
+            json.dumps(scan.headers)
+        )
+    )
+
+    connection.commit()
+
+    scan_id = cursor.lastrowid
+
+    connection.close()
+
     return {
-        "message": "Scan received",
+        "message": "Scan saved",
+        "scan_id": scan_id,
         "domain": scan.domain,
         "url": scan.url
+    }
+
+
+@app.get("/api/scans")
+def get_scans():
+
+    connection = get_connection()
+
+    rows = connection.execute(
+        """
+        SELECT
+            id,
+            domain,
+            url,
+            protocol,
+            is_https,
+
+            links,
+            scripts,
+            images,
+            forms,
+            iframes,
+            resources,
+
+            third_party_domains,
+
+            password_fields,
+            insecure_forms,
+            mixed_content,
+
+            inline_scripts,
+            external_scripts,
+
+            has_csp,
+            cookie_count,
+
+            headers,
+
+            created_at
+
+        FROM scans
+
+        ORDER BY id DESC
+        """
+    ).fetchall()
+
+    connection.close()
+
+    scans = []
+
+    for row in rows:
+
+        scan = dict(row)
+
+        scan["is_https"] = bool(
+            scan["is_https"]
+        )
+
+        scan["mixed_content"] = bool(
+            scan["mixed_content"]
+        )
+
+        scan["has_csp"] = bool(
+            scan["has_csp"]
+        )
+
+        scan["third_party_domains"] = json.loads(
+            scan["third_party_domains"]
+        )
+
+        scan["headers"] = json.loads(
+            scan["headers"]
+        )
+
+        scans.append(scan)
+
+    return {
+        "count": len(scans),
+        "scans": scans
     }
