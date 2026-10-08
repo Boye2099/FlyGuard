@@ -132,7 +132,18 @@ def create_scan(scan: ScanRequest):
 
 
 @app.get("/api/scans")
-def get_scans():
+def get_scans(
+    limit: int = 10,
+    offset: int = 0
+):
+    if limit < 1:
+        limit = 1
+
+    if limit > 100:
+        limit = 100
+
+    if offset < 0:
+        offset = 0
 
     connection = get_connection()
 
@@ -171,7 +182,10 @@ def get_scans():
         FROM scans
 
         ORDER BY id DESC
-        """
+
+        LIMIT ? OFFSET ?
+        """,
+        (limit, offset)
     ).fetchall()
 
     connection.close()
@@ -206,5 +220,7 @@ def get_scans():
 
     return {
         "count": len(scans),
+        "limit": limit,
+        "offset": offset,
         "scans": scans
     }
