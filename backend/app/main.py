@@ -136,6 +136,7 @@ def get_scans(
     limit: int = 10,
     offset: int = 0
 ):
+    """Retrieve recent scans with pagination."""
     if limit < 1:
         limit = 1
 
